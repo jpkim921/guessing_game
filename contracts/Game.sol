@@ -122,10 +122,15 @@ contract House is Ownable {
             emit RoundFinished(true, currGame.numberToMatch, updatedWinnings);
         } else {
             // notify player: lost game, guess, number
-            currGame.winnings = 0;
+            // currGame.winnings = 0;
             currGame.gameFinished = true;
             emit GameFinished(false, currGame.numberToMatch, currGame.winnings);
         }
+
+        console.log("winnings before paying: ", currGame.winnings);
+        payWinnings(payable(msg.sender), currGame.winnings);
+        // console.log("winnings before paying: ", currGame.winnings + ante);
+        // payWinnings(payable(msg.sender), currGame.winnings + ante);
         return _win;
     }
 
@@ -141,7 +146,7 @@ contract House is Ownable {
             0, // 0 for numberToMatch means randon number has not been generated yet
             false,
             false,
-            25
+            ante
         );
 
         // save to list of games per user
@@ -173,12 +178,14 @@ contract House is Ownable {
         return address(this).balance;
     }
 
-    function transferToPlayer(address payable _player, uint256 _amount)
-        external
-        onlyOwner
+    // function transferToPlayer(address payable _player, uint256 _amount)
+    function payWinnings(address payable _player, uint256 _amount)
+        private
+        // onlyOwner
     {
         require(this.gameBalance() >= _amount, "Game has no ETH to payout.");
-        require(playerBalances[_player] > 0, "Player has no balance.");
+        // require(playerBalances[_player] > 0, "Player has no balance.");
+        require(_amount > 0, "Player has no winnings to pay out.");
 
         playerBalances[_player] = 0;
 

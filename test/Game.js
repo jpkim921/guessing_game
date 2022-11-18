@@ -126,7 +126,7 @@ describe("House", function () {
       expect(receipt.events[2].event).to.equal("GameFinished") // expect correct event name
       expect(receipt.events[2].args.win).to.equal(false) // expect ready player to be the one that paid ante
       expect(receipt.events[2].args.numberToMatch).to.equal(5); // expect ready to be true
-      expect(receipt.events[2].args.updatedWinnings).to.equal(0); // expect ready to be true
+      expect(receipt.events[2].args.updatedWinnings).to.equal(ante); // expect ready to be true
       
       // test player's game struct is updated with player's guess and a number to match was generated
       const currentGame = await houseConnectPlayer1.functions.s_user_guesses(await player1.getAddress(), 0)
@@ -164,6 +164,9 @@ describe("House", function () {
       receipt = await tx.wait();
       expect(receipt.events[0].args.playerReady).to.be.true; // expect ready to be true
 
+
+      console.log("before submitting: ", await provider.getBalance(await player1.getAddress()))
+
       // win the first round
       const roundOneGuess = 5;
       const roundOne = 1;
@@ -179,7 +182,7 @@ describe("House", function () {
 
       await expect(houseConnectPlayer1.functions.submitGuess(roundOneGuess, roundOne))
           .to.emit(house, "RoundFinished")
-          .withArgs(true, generatedNumber, 25); // We accept any value as `when` arg
+          .withArgs(true, generatedNumber, ante); // We accept any value as `when` arg
   
           
       // test player's game struct is updated with player's guess and a number to match was generated
@@ -190,14 +193,19 @@ describe("House", function () {
       expect(firstRound.win).to.be.equal(true);
       expect(firstRound.gameFinished).to.be.equal(false); // game is processed and ended
 
+      console.log("after submitting - 1: ", await provider.getBalance(await player1.getAddress()))
       // lose the second round
       const roundTwoGuess = 3
       const roundTwo = 2
 
       // test event emitting
       await expect(houseConnectPlayer1.functions.submitGuess(roundTwoGuess, roundTwo))
-          .to.emit(house, "GameFinished")
-          .withArgs(false, 5, 0); // We accept any value as `when` arg
+          .to.emit(house, "Sent")
+          // .withArgs(house.address, await player1.getAddress(), 500000000000000); // We accept any value as `when` arg
+          .withArgs(house.address, await player1.getAddress(), ante); // We accept any value as `when` arg
+      // await expect(houseConnectPlayer1.functions.submitGuess(roundTwoGuess, roundTwo))
+      //     .to.emit(house, "GameFinished")
+      //     .withArgs(false, 5, 25); // We accept any value as `when` arg
   
           
       // test player's game struct is updated with player's guess and a number to match was generated
@@ -205,8 +213,10 @@ describe("House", function () {
       expect(secondRound.guess).to.be.equal(roundTwoGuess);
       expect(secondRound.win).to.be.equal(false);
       expect(secondRound.gameFinished).to.be.equal(true); 
-      expect(secondRound.winnings).to.be.equal(0); 
+      expect(secondRound.winnings).to.be.equal(ante); 
       
+      console.log("after submitting - 2: ", await provider.getBalance(await player1.getAddress()))
+
       // after losing, currentGame.gameFinished should be updated to true
       // through an event, we should update the FE to notify player and then redirect to player page
     });

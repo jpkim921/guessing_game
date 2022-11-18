@@ -28,14 +28,6 @@ contract House is Ownable {
         uint winnings;
     }
 
-    struct Multiplier {
-        uint8 roundOne;
-        uint8 roundTwo;
-        uint8 roundThree;
-        uint8 roundFour;
-        uint8 roundFive;
-    }
-
     mapping(address => uint) public playerBalances;
     mapping(address => bool) public s_paid_ante;
     mapping(address => PlayerGuess[]) public s_user_guesses;
@@ -101,7 +93,7 @@ contract House is Ownable {
 
         emit WinningNumberGenerated(matchingNumber);
 
-        return 5;
+        return 2;
     }
 
     function checkForMatchingGuess(uint _playerGuess, uint _randNum)
@@ -129,8 +121,10 @@ contract House is Ownable {
 
         console.log("winnings before paying: ", currGame.winnings);
         payWinnings(payable(msg.sender), currGame.winnings);
-        // console.log("winnings before paying: ", currGame.winnings + ante);
-        // payWinnings(payable(msg.sender), currGame.winnings + ante);
+        
+        // flip paid ante to false to play next game
+        s_paid_ante[msg.sender] = false;
+        
         return _win;
     }
 

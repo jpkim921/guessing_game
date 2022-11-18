@@ -125,14 +125,14 @@ describe("House", function () {
       expect(receipt.events[1].args.guess).to.equal(player1Guess); // expect ready to be true
       expect(receipt.events[2].event).to.equal("GameFinished") // expect correct event name
       expect(receipt.events[2].args.win).to.equal(false) // expect ready player to be the one that paid ante
-      expect(receipt.events[2].args.numberToMatch).to.equal(5); // expect ready to be true
+      expect(receipt.events[2].args.numberToMatch).to.equal(2); // expect ready to be true
       expect(receipt.events[2].args.updatedWinnings).to.equal(ante); // expect ready to be true
       
       // test player's game struct is updated with player's guess and a number to match was generated
       const currentGame = await houseConnectPlayer1.functions.s_user_guesses(await player1.getAddress(), 0)
       expect(currentGame.paidAnte).to.be.true;
       expect(currentGame.guess).to.be.equal(player1Guess);
-      expect(currentGame.numberToMatch).to.be.equal(5);
+      expect(currentGame.numberToMatch).to.be.equal(2);
       expect(currentGame.win).to.be.equal(false);
       expect(currentGame.gameFinished).to.be.equal(true); // game is processed and ended
       
@@ -141,7 +141,7 @@ describe("House", function () {
     });
 
     it("Player1 - game1: win, game2: lose", async function () {
-      const generatedNumber = 5; // the "random" number that is the winning number
+      const generatedNumber = 2; // the "random" number that is the winning number
       let tx, receipt;
 
 
@@ -168,7 +168,7 @@ describe("House", function () {
       console.log("before submitting: ", await provider.getBalance(await player1.getAddress()))
 
       // win the first round
-      const roundOneGuess = 5;
+      const roundOneGuess = 2;
       const roundOne = 1;
 
       // test event emitting
@@ -189,7 +189,7 @@ describe("House", function () {
       const firstRound = await houseConnectPlayer1.functions.s_user_guesses(await player1.getAddress(), 0)
       expect(firstRound.paidAnte).to.be.true;
       expect(firstRound.guess).to.be.equal(roundOneGuess);
-      expect(firstRound.numberToMatch).to.be.equal(5);
+      expect(firstRound.numberToMatch).to.be.equal(2);
       expect(firstRound.win).to.be.equal(true);
       expect(firstRound.gameFinished).to.be.equal(false); // game is processed and ended
 
